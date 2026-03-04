@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa 3D - São Tomé e Príncipe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #001219 0%, #005f73 50%, #0a9396 100%);
+            overflow: hidden;
+            color: white;
+        }
+
+        /* ===== Header ===== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 18, 25, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            text-align: center;
+            font-size: 2rem;
+            color: #FFD700;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .header p {
+            text-align: center;
+            color: #00a8cc;
+            margin-top: 5px;
+        }
+
+        /* ===== Controles ===== */
+        .controls {
+            position: fixed;
+            top: 120px;
+            left: 20px;
+            background: rgba(0, 18, 25, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            max-width: 300px;
+        }
+
+        .controls h3 {
+            color: #FFD700;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .control-btn {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: linear-gradient(135deg, #006633, #004d26);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(135deg, #004d26, #003d1f);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #001219;
+        }
+
+        /* ===== Container 3D ===== */
+        .scene-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 600px;
+            perspective: 2000px;
+            perspective-origin: 50% 50%;
+        }
+
+        .island-3d {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: rotate3d 30s linear infinite;
+        }
+
+        .island-3d.paused {
+            animation-play-state: paused;
+        }
+
+        @keyframes rotate3d {
+            0% {
+                transform: rotateX(20deg) rotateY(0deg);
+            }
+            100% {
+                transform: rotateX(20deg) rotateY(360deg);
+            }
+        }
+
+        /* ===== Base da Ilha ===== */
+        .island-base {
+            position: absolute;
+            width: 400px;
+            height: 500px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) translateZ(0px);
+            background: linear-gradient(135deg, #006633 0%, #004d26 50%, #003d1f 100%);
+            border-radius: 45% 55% 50% 50% / 60% 60% 40% 40%;
+            box-shadow: 
+                0 0 50px rgba(0, 102, 51, 0.6),
+                inset 0 0 50px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 215, 0, 0.3);
+        }
+
+        /* ===== Marcadores de Locais ===== */
+        .location-marker {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .location-marker:hover {
+            transform: scale(1.5) translateZ(50px);
+        }
+
+        .marker-pin {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.8),
+                0 5px 10px rgba(0, 0, 0, 0.5);
+            animation: pulse-marker 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-marker {
+            0%, 100% {
+                transform: rotate(-45deg) scale(1);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            }
+            50% {
+                transform: rotate(-45deg) scale(1.2);
+                box-shadow: 0 0 40px rgba(255, 215, 0, 1);
+            }
+        }
+
+        .marker-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            font-size: 1rem;
+        }
+
+        .marker-label {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 18, 25, 0.95);
+            padding: 8px 15px;
+            border-radius: 10px;
+            white-space: nowrap;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #FFD700;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .location-marker:hover .marker-label {
+            opacity: 1;
+            top: -50px;
+        }
+
+        /* ===== Ondas ao Redor ===== */
+        .ocean-wave {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) translateZ(-50px);
+            border: 3px solid rgba(0, 168, 204, 0.3);
+            border-radius: 50%;
+            animation: wave-expand 4s ease-in-out infinite;
+        }
+
+        .ocean-wave:nth-child(2) {
+            animation-delay: 1s;
+        }
+
+        .ocean-wave:nth-child(3) {
+            animation-delay: 2s;
+        }
+
+        @keyframes wave-expand {
+            0% {
+                transform: translate(-50%, -50%) translateZ(-50px) scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translate(-50%, -50%) translateZ(-50px) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* ===== Painel de Informações ===== */
+        .info-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 18, 25, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            transform: translateX(450px);
+            transition: all 0.5s ease;
+        }
+
+        .info-panel.active {
+            transform: translateX(0);
+        }
+
+        /* Scrollbar personalizada para o painel */
+        .info-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .info-panel::-webkit-scrollbar-track {
+            background: rgba(0, 18, 25, 0.5);
+            border-radius: 10px;
+        }
+
+        .info-panel::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 10px;
+        }
+
+        .info-panel::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #FFA500, #FFD700);
+        }
+
+        .info-panel h3 {
+            color: #FFD700;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .info-panel .location-icon {
+            font-size: 3rem;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .info-panel .location-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+            animation: fadeInImage 0.5s ease;
+        }
+
+        .info-panel .location-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        @keyframes fadeInImage {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-panel p {
+            color: #00a8cc;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .info-panel .close-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #001219;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .info-panel .close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.5);
+        }
+
+        /* ===== Partículas Flutuantes ===== */
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: radial-gradient(circle, #FFD700, transparent);
+            border-radius: 50%;
+            animation: float-particle 10s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float-particle {
+            0%, 100% {
+                transform: translate(0, 0) translateZ(0);
+                opacity: 0;
+            }
+            25% {
+                opacity: 1;
+            }
+            50% {
+                transform: translate(100px, -100px) translateZ(100px);
+                opacity: 0.8;
+            }
+            75% {
+                opacity: 1;
+            }
+        }
+
+        /* ===== Botão Voltar ===== */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #001219;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            z-index: 1001;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        /* ===== Legenda ===== */
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 18, 25, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .legend h4 {
+            color: #FFD700;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            color: #00a8cc;
+            font-size: 0.9rem;
+        }
+
+        .legend-icon {
+            font-size: 1.2rem;
+        }
+
+        /* ===== Responsividade ===== */
+        @media (max-width: 1024px) {
+            .scene-container {
+                width: 600px;
+                height: 450px;
+            }
+
+            .island-base {
+                width: 300px;
+                height: 375px;
+            }
+
+            .controls {
+                max-width: 250px;
+            }
+
+            .info-panel {
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .scene-container {
+                width: 90vw;
+                height: 60vh;
+            }
+
+            .island-base {
+                width: 250px;
+                height: 312px;
+            }
+
+            .controls {
+                top: 100px;
+                left: 10px;
+                max-width: 200px;
+                padding: 15px;
+            }
+
+            .info-panel {
+                bottom: 10px;
+                right: 10px;
+                max-width: 90vw;
+            }
+
+            .legend {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🏝️ Mapa 3D Interativo - São Tomé e Príncipe</h1>
+        <p>Explore os principais pontos turísticos em 3D</p>
+    </div>
+
+    <!-- Botão Voltar -->
+    <button class="back-btn" onclick="window.location.href='index.html'">← Voltar ao Site</button>
+
+    <!-- Controles -->
+    <div class="controls">
+        <h3>🎮 Controles</h3>
+        <button class="control-btn" onclick="toggleRotation()">
+            <span>🔄</span>
+            <span id="rotateText">Pausar Rotação</span>
+        </button>
+        <button class="control-btn" onclick="resetView()">
+            <span>🔄</span>
+            <span>Resetar Visão</span>
+        </button>
+        <button class="control-btn" onclick="zoomIn()">
+            <span>🔍</span>
+            <span>Zoom In</span>
+        </button>
+        <button class="control-btn" onclick="zoomOut()">
+            <span>🔎</span>
+            <span>Zoom Out</span>
+        </button>
+        <button class="control-btn" onclick="showAllLocations()">
+            <span>📍</span>
+            <span>Mostrar Todos</span>
+        </button>
+    </div>
+
+    <!-- Cena 3D -->
+    <div class="scene-container">
+        <div class="island-3d" id="island3d">
+            <!-- Ondas -->
+            <div class="ocean-wave"></div>
+            <div class="ocean-wave"></div>
+            <div class="ocean-wave"></div>
+
+            <!-- Base da Ilha -->
+            <div class="island-base"></div>
+
+            <!-- Marcadores de Locais -->
+            <!-- Praia Jalé -->
+            <div class="location-marker" style="left: 45%; top: 70%; transform: translateZ(20px);" 
+                 onclick="showInfo('Praia Jalé', '🏖️', 'Uma das praias mais bonitas de São Tomé, conhecida como santuário de tartarugas marinhas. Local perfeito para observação da natureza e relaxamento.', 'imagens/praia.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">🏖️</span>
+                </div>
+                <div class="marker-label">Praia Jalé</div>
+            </div>
+
+            <!-- Pico Cão Grande -->
+            <div class="location-marker" style="left: 50%; top: 35%; transform: translateZ(80px);" 
+                 onclick="showInfo('Pico Cão Grande', '⛰️', 'Formação vulcânica icónica com 663 metros de altura. Um dos marcos mais impressionantes do arquipélago, visível de vários pontos da ilha.', 'imagens/pico.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">⛰️</span>
+                </div>
+                <div class="marker-label">Pico Cão Grande</div>
+            </div>
+
+            <!-- Roça São João -->
+            <div class="location-marker" style="left: 60%; top: 55%; transform: translateZ(30px);" 
+                 onclick="showInfo('Roça São João', '🏛️', 'Antiga plantação colonial transformada em hotel boutique. Oferece uma experiência única de imersão na história e cultura santomense.', 'imagens/roça.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">🏛️</span>
+                </div>
+                <div class="marker-label">Roça São João</div>
+            </div>
+
+            <!-- Lagoa Azul -->
+            <div class="location-marker" style="left: 30%; top: 45%; transform: translateZ(25px);" 
+                 onclick="showInfo('Lagoa Azul', '💧', 'Piscina natural de águas cristalinas e azul-turquesa. Ideal para mergulho e snorkeling, com rica vida marinha e corais.', 'imagens/lagoa.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">💧</span>
+                </div>
+                <div class="marker-label">Lagoa Azul</div>
+            </div>
+
+            <!-- Boca do Inferno -->
+            <div class="location-marker" style="left: 25%; top: 25%; transform: translateZ(40px);" 
+                 onclick="showInfo('Boca do Inferno', '🌊', 'Penhasco dramático onde as ondas do oceano criam um espetáculo natural impressionante. Local de grande beleza e força da natureza.', 'imagens/boca.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">🌊</span>
+                </div>
+                <div class="marker-label">Boca do Inferno</div>
+            </div>
+
+            <!-- Omali São Tomé -->
+            <div class="location-marker" style="left: 55%; top: 20%; transform: translateZ(35px);" 
+                 onclick="showInfo('Omali São Tomé', '🏨', 'Hotel premium com vista para o mar. Oferece acomodações de luxo, piscina, restaurante gourmet e serviços de primeira classe.', 'imagens/omali.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">🏨</span>
+                </div>
+                <div class="marker-label">Omali São Tomé</div>
+            </div>
+
+            <!-- Pestana São Tomé -->
+            <div class="location-marker" style="left: 70%; top: 40%; transform: translateZ(30px);" 
+                 onclick="showInfo('Pestana São Tomé', '⭐', 'Resort 5 estrelas com infraestrutura completa. Piscina, ginásio, spa e acesso direto à praia. Perfeito para férias relaxantes.', 'imagens/pestana.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">⭐</span>
+                </div>
+                <div class="marker-label">Pestana São Tomé</div>
+            </div>
+
+            <!-- Club Santana -->
+            <div class="location-marker" style="left: 40%; top: 60%; transform: translateZ(28px);" 
+                 onclick="showInfo('Club Santana', '🌴', 'Beach resort com praia privada em Santana. Ambiente tranquilo, perfeito para famílias e casais em busca de privacidade.', 'imagens/clubsantana.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">🌴</span>
+                </div>
+                <div class="marker-label">Club Santana</div>
+            </div>
+
+            <!-- Cascata São Nicolau -->
+            <div class="location-marker" style="left: 35%; top: 35%; transform: translateZ(45px);" 
+                 onclick="showInfo('Cascata São Nicolau', '💦', 'Cachoeira espetacular no meio da floresta tropical. Trilha ecológica com rica biodiversidade e paisagens deslumbrantes.', 'imagens/lagoa.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">💦</span>
+                </div>
+                <div class="marker-label">Cascata São Nicolau</div>
+            </div>
+
+            <!-- Praia das Conchas -->
+            <div class="location-marker" style="left: 65%; top: 65%; transform: translateZ(22px);" 
+                 onclick="showInfo('Praia das Conchas', '🐚', 'Praia paradisíaca com areia branca e águas calmas. Nome devido à abundância de conchas coloridas na costa.', 'imagens/praia.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">🐚</span>
+                </div>
+                <div class="marker-label">Praia das Conchas</div>
+            </div>
+
+            <!-- Ilhéu das Rolas -->
+            <div class="location-marker" style="left: 50%; top: 80%; transform: translateZ(15px);" 
+                 onclick="showInfo('Ilhéu das Rolas', '🌍', 'Pequena ilha ao sul onde passa a Linha do Equador. Marco geográfico único com monumento e resort exclusivo.', 'imagens/praia.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">🌍</span>
+                </div>
+                <div class="marker-label">Ilhéu das Rolas</div>
+            </div>
+
+            <!-- Floresta Obô -->
+            <div class="location-marker" style="left: 45%; top: 40%; transform: translateZ(60px);" 
+                 onclick="showInfo('Floresta Obô', '🌳', 'Parque Natural com floresta tropical primária. Habitat de espécies endémicas raras e trilhas ecológicas fascinantes.', 'imagens/pico.jpg')">
+                <div class="marker-pin">
+                    <span class="marker-icon">🌳</span>
+                </div>
+                <div class="marker-label">Floresta Obô</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Painel de Informações -->
+    <div class="info-panel" id="infoPanel">
+        <h3 id="infoTitle">Local</h3>
+        <div class="location-icon" id="infoIcon">📍</div>
+        <img id="infoImage" class="location-image" src="" alt="" style="display: none;">
+        <p id="infoDescription">Clique em um marcador para ver informações</p>
+        <button class="close-btn" onclick="closeInfo()">Fechar</button>
+    </div>
+
+    <!-- Legenda -->
+    <div class="legend">
+        <h4>📌 Legenda</h4>
+        <div class="legend-item">
+            <span class="legend-icon">🏖️</span>
+            <span>Praias</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-icon">🏨</span>
+            <span>Hotéis</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-icon">⛰️</span>
+            <span>Montanhas</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-icon">🌳</span>
+            <span>Natureza</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-icon">🏛️</span>
+            <span>Cultura</span>
+        </div>
+    </div>
+
+    <script>
+        // ===== Variáveis Globais =====
+        let isRotating = true;
+        let currentZoom = 1;
+        const island = document.getElementById('island3d');
+        const infoPanel = document.getElementById('infoPanel');
+
+        // ===== Criar Partículas =====
+        function createParticles() {
+            const container = document.querySelector('.scene-container');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // ===== Toggle Rotação =====
+        function toggleRotation() {
+            isRotating = !isRotating;
+            const rotateText = document.getElementById('rotateText');
+            
+            if (isRotating) {
+                island.classList.remove('paused');
+                rotateText.textContent = 'Pausar Rotação';
+            } else {
+                island.classList.add('paused');
+                rotateText.textContent = 'Iniciar Rotação';
+            }
+        }
+
+        // ===== Reset View =====
+        function resetView() {
+            currentZoom = 1;
+            island.style.transform = `scale(${currentZoom})`;
+            island.classList.remove('paused');
+            island.style.animation = 'rotate3d 30s linear infinite';
+            isRotating = true;
+            document.getElementById('rotateText').textContent = 'Pausar Rotação';
+        }
+
+        // ===== Zoom In =====
+        function zoomIn() {
+            if (currentZoom < 2) {
+                currentZoom += 0.2;
+                island.style.transform = `scale(${currentZoom})`;
+            }
+        }
+
+        // ===== Zoom Out =====
+        function zoomOut() {
+            if (currentZoom > 0.5) {
+                currentZoom -= 0.2;
+                island.style.transform = `scale(${currentZoom})`;
+            }
+        }
+
+        // ===== Mostrar Informações =====
+        function showInfo(title, icon, description, imagePath) {
+            document.getElementById('infoTitle').textContent = title;
+            document.getElementById('infoIcon').textContent = icon;
+            document.getElementById('infoDescription').textContent = description;
+            
+            const imageElement = document.getElementById('infoImage');
+            if (imagePath) {
+                imageElement.src = imagePath;
+                imageElement.alt = title;
+                imageElement.style.display = 'block';
+            } else {
+                imageElement.style.display = 'none';
+            }
+            
+            infoPanel.classList.add('active');
+        }
+
+        // ===== Fechar Informações =====
+        function closeInfo() {
+            infoPanel.classList.remove('active');
+        }
+
+        // ===== Mostrar Todos os Locais =====
+        function showAllLocations() {
+            const markers = document.querySelectorAll('.location-marker');
+            markers.forEach((marker, index) => {
+                setTimeout(() => {
+                    marker.style.animation = 'pulse-marker 0.5s ease-in-out';
+                    setTimeout(() => {
+                        marker.style.animation = '';
+                    }, 500);
+                }, index * 200);
+            });
+        }
+
+        // ===== Controle de Mouse =====
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let rotation = { x: 20, y: 0 };
+
+        document.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.location-marker') || e.target.closest('.controls') || 
+                e.target.closest('.info-panel') || e.target.closest('.back-btn')) {
+                return;
+            }
+            isDragging = true;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            const deltaX = e.clientX - previousMousePosition.x;
+            const deltaY = e.clientY - previousMousePosition.y;
+
+            rotation.y += deltaX * 0.5;
+            rotation.x -= deltaY * 0.5;
+
+            // Limitar rotação X
+            rotation.x = Math.max(-60, Math.min(60, rotation.x));
+
+            island.style.animation = 'none';
+            island.style.transform = `scale(${currentZoom}) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`;
+
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // ===== Touch Support =====
+        let previousTouchPosition = { x: 0, y: 0 };
+
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.location-marker') || e.target.closest('.controls') || 
+                e.target.closest('.info-panel') || e.target.closest('.back-btn')) {
+                return;
+            }
+            previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (e.target.closest('.location-marker') || e.target.closest('.controls') || 
+                e.target.closest('.info-panel') || e.target.closest('.back-btn')) {
+                return;
+            }
+
+            const deltaX = e.touches[0].clientX - previousTouchPosition.x;
+            const deltaY = e.touches[0].clientY - previousTouchPosition.y;
+
+            rotation.y += deltaX * 0.5;
+            rotation.x -= deltaY * 0.5;
+
+            rotation.x = Math.max(-60, Math.min(60, rotation.x));
+
+            island.style.animation = 'none';
+            island.style.transform = `scale(${currentZoom}) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`;
+
+            previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        });
+
+        // ===== Inicialização =====
+        window.addEventListener('load', () => {
+            createParticles();
+            
+            // Animação de entrada
+            setTimeout(() => {
+                showAllLocations();
+            }, 1000);
+        });
+
+        // ===== Atalhos de Teclado =====
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    toggleRotation();
+                    break;
+                case '+':
+                case '=':
+                    zoomIn();
+                    break;
+                case '-':
+                case '_':
+                    zoomOut();
+                    break;
+                case 'r':
+                case 'R':
+                    resetView();
+                    break;
+                case 'Escape':
+                    closeInfo();
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

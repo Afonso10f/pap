@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turismo em São Tomé e Príncipe</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Descubra São Tomé e Príncipe</h1>
+            <p>Um paraíso tropical no coração do Atlântico</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <a href="#pontos" class="btn-hero">Explorar Destinos</a>
+                <a href="mapa3d.html" class="btn-hero" style="background: linear-gradient(135deg, #FFD700, #FFA500); color: #001219;">🗺️ Ver Mapa 3D</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegação Fixa -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#pontos" class="nav-link">🏝️ Pontos Turísticos</a>
+            <a href="#hoteis" class="nav-link">🏨 Hotéis</a>
+            <a href="#historia" class="nav-link">📖 História</a>
+            <a href="mapa3d.html" class="nav-link" style="background: linear-gradient(135deg, #FFD700, #FFA500); color: #001219;">🗺️ Mapa 3D</a>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Carrossel de Pontos Turísticos -->
+        <section id="pontos">
+            <div class="section-header">
+                <h2>Principais Pontos Turísticos</h2>
+                <p class="subtitle">Explore as maravilhas naturais de São Tomé e Príncipe</p>
+            </div>
+            <div class="carrossel-container">
+                <div class="carrossel">
+                    <div class="slide ativo" onclick="mostrarDetalhes('praia')">
+                        <img src="imagens/praia.jpg" alt="Praia Jalé">
+                        <div class="slide-overlay">
+                            <p class="slide-title">Praia Jalé</p>
+                            <p class="slide-subtitle">Santuário de Tartarugas</p>
+                        </div>
+                    </div>
+                    <div class="slide" onclick="mostrarDetalhes('pico')">
+                        <img src="imagens/pico.jpg" alt="Pico Cão Grande">
+                        <div class="slide-overlay">
+                            <p class="slide-title">Pico Cão Grande</p>
+                            <p class="slide-subtitle">Formação Vulcânica Icónica</p>
+                        </div>
+                    </div>
+                    <div class="slide" onclick="mostrarDetalhes('roça')">
+                        <img src="imagens/roça.jpg" alt="Roça São João">
+                        <div class="slide-overlay">
+                            <p class="slide-title">Roça São João</p>
+                            <p class="slide-subtitle">Herança Colonial</p>
+                        </div>
+                    </div>
+                    <div class="slide" onclick="mostrarDetalhes('lagoa')">
+                        <img src="imagens/lagoa.jpg" alt="Lagoa Azul">
+                        <div class="slide-overlay">
+                            <p class="slide-title">Lagoa Azul</p>
+                            <p class="slide-subtitle">Águas Cristalinas</p>
+                        </div>
+                    </div>
+                    <div class="slide" onclick="mostrarDetalhes('boca')">
+                        <img src="imagens/boca.jpg" alt="Boca do Inferno">
+                        <div class="slide-overlay">
+                            <p class="slide-title">Boca do Inferno</p>
+                            <p class="slide-subtitle">Penhasco Dramático</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Botões de navegação do carrossel -->
+                <button class="carrossel-btn prev" onclick="mudarSlide(-1)">❮</button>
+                <button class="carrossel-btn next" onclick="mudarSlide(1)">❯</button>
+                <!-- Indicadores -->
+                <div class="carrossel-indicadores">
+                    <span class="indicador ativo" onclick="irParaSlide(0)"></span>
+                    <span class="indicador" onclick="irParaSlide(1)"></span>
+                    <span class="indicador" onclick="irParaSlide(2)"></span>
+                    <span class="indicador" onclick="irParaSlide(3)"></span>
+                    <span class="indicador" onclick="irParaSlide(4)"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal de detalhes -->
+        <div id="modal" class="modal">
+            <div class="modal-conteudo">
+                <span class="fechar" onclick="fecharModal()">&times;</span>
+                <h3 id="titulo"></h3>
+                <p id="descricao"></p>
+            </div>
+        </div>
+
+        <!-- Seção de Hotéis -->
+        <section id="hoteis">
+            <div class="section-header">
+                <h2>Hotéis Recomendados</h2>
+                <p class="subtitle">Acomodações de qualidade para sua estadia perfeita</p>
+            </div>
+
+            <div class="hoteis-grid">
+                <!-- Hotel 1: Omali São Tomé -->
+                <div class="hotel-card">
+                    <div class="hotel-image">
+                        <img src="imagens/omali.jpg" alt="Omali São Tomé">
+                        <div class="hotel-badge">Premium</div>
+                    </div>
+                    <div class="hotel-content">
+                        <h3>Omali São Tomé</h3>
+                        <p class="hotel-location">📍 São Tomé, Zona Norte</p>
+                        <div class="hotel-services">
+                            <span class="service-tag">Wi-Fi</span>
+                            <span class="service-tag">Piscina</span>
+                            <span class="service-tag">Restaurante</span>
+                            <span class="service-tag">Transfer</span>
+                        </div>
+                        <div class="hotel-price">
+                            <span class="price-label">A partir de</span>
+                            <span class="price-value">214$/noite</span>
+                        </div>
+                        <button class="btn-hotel" onclick="mostrarHotelDetalhes('omali')">Ver Detalhes</button>
+                    </div>
+                </div>
+
+                <!-- Hotel 2: Pestana São Tomé -->
+                <div class="hotel-card">
+                    <div class="hotel-image">
+                        <img src="imagens/pestana.jpg" alt="Pestana São Tomé">
+                        <div class="hotel-badge">5 Estrelas</div>
+                    </div>
+                    <div class="hotel-content">
+                        <h3>Pestana São Tomé</h3>
+                        <p class="hotel-location">📍 São Tomé, Zona Sul</p>
+                        <div class="hotel-services">
+                            <span class="service-tag">Wi-Fi</span>
+                            <span class="service-tag">Piscina</span>
+                            <span class="service-tag">Restaurante</span>
+                            <span class="service-tag">Ginásio</span>
+                        </div>
+                        <div class="hotel-price">
+                            <span class="price-label">A partir de</span>
+                            <span class="price-value">150$/noite</span>
+                        </div>
+                        <button class="btn-hotel" onclick="mostrarHotelDetalhes('pestana')">Ver Detalhes</button>
+                    </div>
+                </div>
+
+                <!-- Hotel 3: Hotel Praia -->
+                <div class="hotel-card">
+                    <div class="hotel-image">
+                        <img src="imagens/hotelpraia.jpg" alt="Hotel Praia">
+                        <div class="hotel-badge">Económico</div>
+                    </div>
+                    <div class="hotel-content">
+                        <h3>Hotel Praia</h3>
+                        <p class="hotel-location">📍 São Tomé, Zona Oeste</p>
+                        <div class="hotel-services">
+                            <span class="service-tag">Wi-Fi</span>
+                            <span class="service-tag">Piscina</span>
+                            <span class="service-tag">Restaurante</span>
+                        </div>
+                        <div class="hotel-price">
+                            <span class="price-label">A partir de</span>
+                            <span class="price-value">80$/noite</span>
+                        </div>
+                        <button class="btn-hotel" onclick="mostrarHotelDetalhes('hotelpraia')">Ver Detalhes</button>
+                    </div>
+                </div>
+
+                <!-- Hotel 4: Roça São João dos Angolares -->
+                <div class="hotel-card">
+                    <div class="hotel-image">
+                        <img src="imagens/roça.jpg" alt="Roça São João">
+                        <div class="hotel-badge">Cultural</div>
+                    </div>
+                    <div class="hotel-content">
+                        <h3>Roça São João dos Angolares</h3>
+                        <p class="hotel-location">📍 São Tomé, Zona Sul</p>
+                        <div class="hotel-services">
+                            <span class="service-tag">Wi-Fi</span>
+                            <span class="service-tag">Restaurante</span>
+                            <span class="service-tag">Cultura</span>
+                        </div>
+                        <div class="hotel-price">
+                            <span class="price-label">A partir de</span>
+                            <span class="price-value">51€/noite</span>
+                        </div>
+                        <button class="btn-hotel" onclick="mostrarHotelDetalhes('roca')">Ver Detalhes</button>
+                    </div>
+                </div>
+
+                <!-- Hotel 5: Club Santana Beach & Resort -->
+                <div class="hotel-card">
+                    <div class="hotel-image">
+                        <img src="imagens/clubsantana.jpg" alt="Club Santana">
+                        <div class="hotel-badge">Resort</div>
+                    </div>
+                    <div class="hotel-content">
+                        <h3>Club Santana Beach & Resort</h3>
+                        <p class="hotel-location">📍 Santana, Ilha de São Tomé</p>
+                        <div class="hotel-services">
+                            <span class="service-tag">Wi-Fi</span>
+                            <span class="service-tag">Piscina</span>
+                            <span class="service-tag">Praia Privada</span>
+                        </div>
+                        <div class="hotel-price">
+                            <span class="price-label">A partir de</span>
+                            <span class="price-value">100$/noite</span>
+                        </div>
+                        <button class="btn-hotel" onclick="mostrarHotelDetalhes('clubSantana')">Ver Detalhes</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Modal de detalhes do hotel -->
+<div id="modalHotel" class="modal">
+    <div class="modal-conteudo">
+        <span class="fechar" onclick="fecharModalHotel()">&times;</span>
+        <h3 id="hotelTitulo"></h3>
+        <p id="hotelDescricao"></p>
+        <img id="hotelImagem" src="" alt="" style="width:100%; border-radius:10px; margin-top:10px;">
+    </div>
+</div>
+
+        <!-- História do país -->
+        <section id="historia">
+            <div class="section-header">
+                <h2>Um Pouco da História</h2>
+                <p class="subtitle">Conheça a rica história deste arquipélago africano</p>
+            </div>
+            <div class="historia-content">
+                <div class="historia-text">
+                    <p>
+                        <strong>São Tomé e Príncipe</strong> é um pequeno país insular localizado no Golfo da Guiné, 
+                        na costa da África Central. Descoberto por navegadores portugueses no século XV, 
+                        tornou-se uma importante colônia para a produção de açúcar, cacau e café.
+                    </p>
+                    <p>
+                        A independência foi conquistada em <strong>12 de julho de 1975</strong>, marcando o início 
+                        de uma nova era para o país. Hoje, São Tomé e Príncipe é conhecido pela sua biodiversidade 
+                        única, praias paradisíacas e cultura vibrante.
+                    </p>
+                    <div class="historia-facts">
+                        <div class="fact">
+                            <span class="fact-icon">🗓️</span>
+                            <div>
+                                <strong>Descoberta</strong>
+                                <p>Século XV</p>
+                            </div>
+                        </div>
+                        <div class="fact">
+                            <span class="fact-icon">🎉</span>
+                            <div>
+                                <strong>Independência</strong>
+                                <p>12 de Julho de 1975</p>
+                            </div>
+                        </div>
+                        <div class="fact">
+                            <span class="fact-icon">🌍</span>
+                            <div>
+                                <strong>Localização</strong>
+                                <p>Golfo da Guiné</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Botão Voltar ao Topo -->
+    <button id="voltarTopo" onclick="voltarAoTopo()" title="Voltar ao topo">↑</button>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Turismo São Tomé e Príncipe</h3>
+                <p>Descubra o paraíso tropical no coração do Atlântico</p>
+            </div>
+            <div class="footer-section">
+                <h4>Links Rápidos</h4>
+                <a href="#pontos">Pontos Turísticos</a>
+                <a href="#hoteis">Hotéis</a>
+                <a href="#historia">História</a>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p>📧 info@turismostp.com</p>
+                <p>📞 +239 222 1234</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 Turismo em São Tomé e Príncipe. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Turismo STP</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <div class="brand-title">Admin Dashboard</div>
+        <div class="brand-subtitle">Turismo São Tomé e Príncipe</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button id="btnLogout" class="btn btn-ghost" type="button">Logout</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section id="loginPanel" class="card login-card">
+      <h1>Entrar</h1>
+      <p class="muted">Acesso por PIN único (sessão PHP).</p>
+      <form id="loginForm" class="login-form">
+        <label class="field">
+          <span>PIN</span>
+          <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="Ex.: 1234" required>
+        </label>
+        <button class="btn btn-primary" type="submit">Login</button>
+      </form>
+      <div id="loginMsg" class="msg"></div>
+    </section>
+
+    <section id="appPanel" class="app" hidden>
+      <nav class="tabs">
+        <button class="tab active" data-tab="locais" type="button">Locais</button>
+        <button class="tab" data-tab="categorias" type="button">Categorias</button>
+        <button class="tab" data-tab="conteudo" type="button">Conteúdo</button>
+      </nav>
+
+      <div class="grid">
+        <section class="card" data-view="locais">
+          <div class="card-header">
+            <h2>Locais</h2>
+            <button id="btnReloadLocais" class="btn btn-ghost" type="button">Recarregar</button>
+          </div>
+
+          <div class="split">
+            <div class="pane">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Categoria</th>
+                    <th>Distrito</th>
+                    <th>Slider</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="locaisTbody"></tbody>
+              </table>
+            </div>
+
+            <div class="pane">
+              <h3 id="localFormTitle">Criar/Editar</h3>
+              <form id="localForm" class="form">
+                <input id="localId" type="hidden">
+
+                <label class="field">
+                  <span>Nome</span>
+                  <input id="localNome" required>
+                </label>
+
+                <label class="field">
+                  <span>Subtítulo/Badge</span>
+                  <input id="localSubtitulo" placeholder="Ex.: Premium, Económico, Santuário...">
+                </label>
+
+                <label class="field">
+                  <span>Descrição</span>
+                  <textarea id="localDescricao" rows="5"></textarea>
+                </label>
+
+                <div class="row">
+                  <label class="field">
+                    <span>Distrito</span>
+                    <input id="localDistrito" placeholder="Ex.: São Tomé, Santana...">
+                  </label>
+                  <label class="field">
+                    <span>Categoria</span>
+                    <select id="localCategoria"></select>
+                  </label>
+                </div>
+
+                <div class="row">
+                  <label class="field">
+                    <span>Ícone (emoji)</span>
+                    <input id="localIcone" placeholder="Ex.: 🏖️">
+                  </label>
+                  <label class="field">
+                    <span>Preço (para hotéis)</span>
+                    <input id="localPreco" placeholder="Ex.: 80$/noite">
+                  </label>
+                </div>
+
+                <label class="field">
+                  <span>Imagem atual</span>
+                  <input id="localImagem" placeholder="Será preenchido automaticamente" readonly>
+                </label>
+
+                <label class="field">
+                  <span>Escolher imagem do computador</span>
+                  <input id="localImagemFile" type="file" accept="image/*">
+                </label>
+
+                <div class="row">
+                  <label class="field">
+                    <span>Pos X (0-100)</span>
+                    <input id="localPosX" type="number" min="0" max="100" placeholder="45">
+                  </label>
+                  <label class="field">
+                    <span>Pos Y (0-100)</span>
+                    <input id="localPosY" type="number" min="0" max="100" placeholder="70">
+                  </label>
+                </div>
+
+                <label class="field">
+                  <span>Extras (tags, separadas por vírgulas)</span>
+                  <input id="localExtras" placeholder="Wi-Fi, Piscina, Restaurante">
+                </label>
+                <label class="field" style="display:flex; flex-direction:row; align-items:center; gap:10px;">
+                  <input id="localMostrarSlider" type="checkbox" style="width:auto;">
+                  <span>Mostrar este local/hotel no slider</span>
+                </label>
+
+
+                <div class="actions">
+                  <button class="btn btn-primary" type="submit">Guardar</button>
+                  <button id="btnLocalReset" class="btn btn-ghost" type="button">Limpar</button>
+                </div>
+              </form>
+
+              <div id="localMsg" class="msg"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" data-view="categorias" hidden>
+          <div class="card-header">
+            <h2>Categorias</h2>
+            <button id="btnReloadCategorias" class="btn btn-ghost" type="button">Recarregar</button>
+          </div>
+
+          <div class="split">
+            <div class="pane">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="categoriasTbody"></tbody>
+              </table>
+            </div>
+            <div class="pane">
+              <h3>Criar/Editar</h3>
+              <form id="categoriaForm" class="form">
+                <input id="categoriaId" type="hidden">
+                <label class="field">
+                  <span>Nome</span>
+                  <input id="categoriaNome" required>
+                </label>
+                <div class="actions">
+                  <button class="btn btn-primary" type="submit">Guardar</button>
+                  <button id="btnCategoriaReset" class="btn btn-ghost" type="button">Limpar</button>
+                </div>
+              </form>
+              <div id="categoriaMsg" class="msg"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" data-view="conteudo" hidden>
+          <div class="card-header">
+            <h2>Conteúdo</h2>
+            <button id="btnReloadConteudo" class="btn btn-ghost" type="button">Recarregar</button>
+          </div>
+
+          <div class="split">
+            <div class="pane">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Chave</th>
+                    <th>Prévia</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="conteudoTbody"></tbody>
+              </table>
+            </div>
+            <div class="pane">
+              <h3>Editar</h3>
+              <form id="conteudoForm" class="form">
+                <label class="field">
+                  <span>Chave</span>
+                  <input id="conteudoChave" required>
+                </label>
+                <label class="field">
+                  <span>Valor</span>
+                  <textarea id="conteudoValor" rows="10"></textarea>
+                </label>
+                <div class="actions">
+                  <button class="btn btn-primary" type="submit">Guardar</button>
+                  <button id="btnConteudoReset" class="btn btn-ghost" type="button">Limpar</button>
+                </div>
+              </form>
+              <div id="conteudoMsg" class="msg"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
+
+
+
